@@ -3,65 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Contacts | The Future</title>
+    <title>Neural Contacts | העתיד של ניהול הקשרים</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --neon: #8b5cf6; --cyan: #22d3ee; }
-        body { background: #020617; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 28px; }
-        .neon-text { text-shadow: 0 0 10px var(--neon); }
-        .btn-gradient { background: linear-gradient(135deg, var(--neon), var(--cyan)); transition: 0.3s; }
-        .btn-gradient:hover { transform: scale(1.02); filter: brightness(1.2); }
-        .admin-glow { border: 1px solid rgba(239, 68, 68, 0.5); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        :root { --neon-p: #a855f7; --neon-c: #22d3ee; --bg: #0f172a; }
+        body { background: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; overflow-x: hidden; }
+        .cyber-glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+        .neon-border-p { border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); }
+        .btn-gradient { background: linear-gradient(135deg, var(--neon-p), var(--neon-c)); transition: all 0.3s ease; }
+        .btn-gradient:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .input-cyber { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; padding: 12px; outline: none; transition: 0.3s; }
+        .input-cyber:focus { border-color: var(--neon-c); box-shadow: 0 0 10px rgba(34, 211, 238, 0.3); }
+        .avatar-placeholder { background: linear-gradient(135deg, #475569, #1e293b); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body class="p-4 md:p-8">
 
-    <header class="w-full max-w-lg flex flex-col items-center my-8">
-        <img src="https://i.postimg.cc/RWwHHG5g/logo.png" alt="Logo" class="w-20 h-20 rounded-full border-2 border-purple-500 mb-4 shadow-[0_0_30px_rgba(139,92,246,0.5)]">
-        <h1 class="text-4xl font-black italic tracking-tighter neon-text">NEURAL <span class="text-cyan-400">CONTACTS</span></h1>
-        <p class="text-gray-400 text-sm mt-2">Design by Rafael Digital</p>
-    </header>
-
-    <div id="login-screen" class="glass w-full max-w-md p-8 text-center">
-        <h2 class="text-2xl font-bold mb-6">ברוך הבא למערכת</h2>
-        <button onclick="loginGoogle()" class="w-full bg-white text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-200 transition mb-4">
-            <img src="https://www.google.com/favicon.ico" class="w-5"> התחבר עם Google
-        </button>
-        <p class="text-xs text-gray-500">בכניסה למערכת הינך מאשר את תנאי השימוש</p>
+    <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+        <img src="https://i.postimg.cc/RWwHHG5g/logo.png" alt="Logo" class="w-28 h-28 rounded-full border-4 border-purple-500 mb-6 shadow-[0_0_40px_rgba(168,85,247,0.6)]">
+        <h1 class="text-5xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-3">NEURAL CONTACTS</h1>
+        <p class="text-gray-400 mb-12 max-w-sm text-lg">המערכת האינטליגנטית שתשנה את הדרך בה אתה מנהל את העולם החברתי שלך.</p>
+        
+        <div class="w-full max-w-sm cyber-glass neon-border-p p-8">
+            <h2 class="text-xl font-bold mb-6">להתחברות מאובטחת</h2>
+            <button onclick="loginWithGoogle()" class="w-full bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-all duration-300">
+                <img src="https://www.google.com/favicon.ico" class="w-5"> כניסה חלקה עם Google
+            </button>
+            <div class="relative my-6"><div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-700"></span></div><div class="relative flex justify-center text-xs"><span class="bg-slate-900 px-2 text-gray-500">או דרך אימייל</span></div></div>
+            <input type="email" id="email-login" placeholder="הכנס את המייל שלך..." class="w-full input-cyber mb-3 text-center">
+            <button onclick="loginWithEmailLink()" class="w-full bg-slate-800 text-gray-300 py-3 rounded-xl hover:bg-slate-700">שלח קוד אימות לאימייל</button>
+        </div>
     </div>
 
-    <div id="main-app" class="hidden w-full max-w-lg space-y-6">
+    <div id="app-screen" class="hidden max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
         
-        <div id="admin-panel" class="hidden glass admin-glow p-6">
-            <h3 class="text-red-500 font-bold mb-4 flex items-center gap-2 text-lg">⚙️ פאנל ניהול על - Rafael</h3>
-            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-4 text-center">
-                <div class="bg-black/40 p-3 rounded-xl border border-red-500/20">
-                    <div class="text-xs opacity-50">משתמשים</div>
-                    <div id="total-users" class="text-xl font-bold">...</div>
-                </div>
-                <div class="bg-black/40 p-3 rounded-xl border border-red-500/20">
-                    <div class="text-xs opacity-50">אנשי קשר</div>
-                    <div id="total-contacts" class="text-xl font-bold">...</div>
-                </div>
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 cyber-glass p-5 neon-border-p">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/RWwHHG5g/logo.png" class="w-12 h-12 rounded-full border border-purple-500">
+                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">NEURAL CONTACTS</h1>
             </div>
-            <div id="users-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
-        </div>
-
-        <div class="flex gap-4">
-            <button onclick="openAddModal()" class="flex-1 btn-gradient py-4 rounded-2xl font-bold shadow-lg shadow-purple-500/30">+ הוסף איש קשר</button>
-            <button onclick="exportMyPDF()" class="bg-slate-800 p-4 rounded-2xl border border-white/10">📄</button>
-        </div>
-
-        <div id="contacts-list" class="space-y-4">
+            <input type="text" id="search-contacts" placeholder="חיפוש מהיר (שם, מספר, תגית)..." class="w-full md:max-w-md input-cyber">
+            <div class="flex items-center gap-3">
+                <span id="user-display" class="text-xs text-gray-500 truncate max-w-[150px]">...</span>
+                <button onclick="auth.signOut()" class="text-xs text-red-400 underline">התנתק</button>
             </div>
+        </header>
 
-        <button onclick="auth.signOut()" class="w-full py-4 text-gray-500 text-sm opacity-50 hover:opacity-100">התנתק מהחשבון</button>
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <aside class="space-y-6">
+                <div class="cyber-glass p-6">
+                    <h2 class="text-lg font-bold mb-4">פעולות חכמות</h2>
+                    <button onclick="openAddModal()" class="w-full btn-gradient text-white font-bold py-3 rounded-xl mb-3 shadow-lg shadow-purple-500/30">+ איש קשר חדש</button>
+                    <button onclick="syncGoogleContacts()" class="w-full bg-slate-800 py-3 rounded-xl text-cyan-400 border border-cyan-400/30 hover:bg-slate-700">סנכרן אנשי קשר מגוגל</button>
+                </div>
+
+                <div id="admin-panel" class="hidden cyber-glass border border-red-500/30 p-6">
+                    <h3 class="text-red-400 font-bold mb-4 text-sm flex items-center gap-2">⚠️ פאנל ניהול (מנהל על)</h3>
+                    <div id="users-list" class="space-y-3 text-xs max-h-52 overflow-y-auto"></div>
+                    <button onclick="downloadGlobalPDF()" class="mt-4 w-full bg-red-600/20 text-red-400 border border-red-600 py-2 rounded-lg text-[10px] font-bold">PDF של כל המערכת</button>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-3 cyber-glass p-6 neon-border-p">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">אנשי הקשר שלי</h2>
+                    <div class="text-sm text-gray-500"><span id="contact-count">0</span> אנשים מסונכרנים</div>
+                </div>
+                <div id="contacts-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="add-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="cyber-glass w-full max-w-lg p-8 neon-border-p">
+            <h2 class="text-2xl font-bold mb-6">הוספת איש קשר עתידי</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="c-name" placeholder="שם פרטי (חובה)" class="input-cyber" required>
+                <input type="text" id="c-surname" placeholder="שם משפחה (רשות)" class="input-cyber">
+                <input type="tel" id="c-phone" placeholder="מספר פלאפון (חובה)" class="input-cyber" required>
+                <input type="email" id="c-email" placeholder="אימייל (רשות)" class="input-cyber">
+            </div>
+            <input type="file" id="c-avatar" accept="image/*" class="w-full input-cyber text-xs mb-6">
+            <div class="flex gap-4">
+                <button onclick="submitNewContact()" class="flex-1 btn-gradient py-3 rounded-xl font-bold">שמור איש קשר</button>
+                <button onclick="closeAddModal()" class="bg-slate-800 px-6 py-3 rounded-xl">ביטול</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -78,18 +113,19 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
         const adminEmail = "rplzky7@gmail.com";
 
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(async user => {
             const loginScreen = document.getElementById('login-screen');
-            const mainApp = document.getElementById('main-app');
+            const appScreen = document.getElementById('app-screen');
             const adminPanel = document.getElementById('admin-panel');
 
             if (user) {
                 loginScreen.classList.add('hidden');
-                mainApp.classList.remove('hidden');
+                appScreen.classList.remove('hidden');
+                document.getElementById('user-display').innerText = user.email;
                 
-                // בדיקת מנהל
                 if (user.email === adminEmail) {
                     adminPanel.classList.remove('hidden');
                     loadAdminData();
@@ -97,66 +133,217 @@
                 loadContacts(user.uid);
             } else {
                 loginScreen.classList.remove('hidden');
-                mainApp.classList.add('hidden');
+                appScreen.classList.add('hidden');
             }
         });
 
-        async function loginGoogle() {
+        // כניסה מטורפת עם גוגל וסנכרון מיידי
+        async function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            try { await auth.signInWithPopup(provider); } catch (e) { alert("שגיאה בהתחברות"); }
+            // מבקש הרשאה לאנשי הקשר של גוגל
+            provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+            
+            try {
+                const result = await auth.signInWithPopup(provider);
+                if (result.credential) {
+                    // סנכרון אוטומטי של אנשי הקשר אחרי הכניסה
+                    syncGoogleContacts(result.credential.accessToken);
+                }
+            } catch (e) { alert("שגיאה בהתחברות מגוגל."); }
         }
 
-        async function loadContacts(uid) {
-            const container = document.getElementById('contacts-list');
+        async function loginWithEmailLink() {
+            const email = document.getElementById('email-login').value;
+            if (!email) { alert("אנא הכנס אימייל."); return; }
+            try {
+                const actionCodeSettings = { url: window.location.href, handleCodeInApp: true };
+                await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+                window.localStorage.setItem('emailForSignIn', email);
+                alert("שלחנו לך קוד אימות למייל! בדוק את תיבת הדואר הנכנס.");
+            } catch (e) { alert("שגיאה בשליחת הקוד."); }
+        }
+
+        // השלמת כניסה דרך קוד במייל (אם יש)
+        if (auth.isSignInWithEmailLink(window.location.href)) {
+            let email = window.localStorage.getItem('emailForSignIn');
+            if (!email) { email = window.prompt('אנא הכנס את המייל שלך שוב לאימות.'); }
+            auth.signInWithEmailLink(email, window.location.href).then(() => {
+                window.localStorage.removeItem('emailForSignIn');
+            });
+        }
+
+        // הפיצ'ר הראשי: ייבוא אנשי קשר מגוגל
+        async function syncGoogleContacts(providedToken = null) {
+            let token = providedToken;
+            if (!token) {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+                const result = await auth.signInWithPopup(provider);
+                token = result.credential.accessToken;
+            }
+
+            alert("מתחיל סנכרון מטורף... זה ייקח כמה שניות.");
+
+            try {
+                const response = await fetch('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses,phoneNumbers,photos', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.connections) {
+                    let imported = 0;
+                    const uid = auth.currentUser.uid;
+                    const batch = db.batch();
+
+                    data.connections.forEach(person => {
+                        const name = person.names ? person.names[0].displayName : 'ללא שם';
+                        const phone = person.phoneNumbers ? person.phoneNumbers[0].value : null;
+                        if (name && phone) {
+                            const ref = db.collection('contacts').doc(`${uid}_${phone.replace(/\s/g, '')}`);
+                            batch.set(ref, {
+                                name,
+                                phone,
+                                email: person.emailAddresses ? person.emailAddresses[0].value : '',
+                                avatarUrl: person.photos ? person.photos[0].url : '',
+                                ownerId: uid,
+                                importedFromGoogle: true,
+                                rawGCPData: person // שומר הכל בשביל ה"מפות יחסים" שלך לעתיד
+                            });
+                            imported++;
+                        }
+                    });
+                    await batch.commit();
+                    alert(`המבצע הצליח! ייבאנו ${imported} אנשי קשר מטורפים מגוגל.`);
+                    loadContacts(uid);
+                }
+            } catch (e) { alert("שגיאה בסנכרון מגוגל."); }
+        }
+
+        // טעינה ועיצוב مטורף של רשימת אנשי קשר
+        async function loadContacts(uid, searchTerm = "") {
+            const container = document.getElementById('contacts-container');
             const snapshot = await db.collection('contacts').where('ownerId', '==', uid).get();
-            container.innerHTML = snapshot.empty ? '<p class="text-center opacity-30 py-10">אין אנשי קשר עדיין...</p>' : '';
             
-            snapshot.forEach(doc => {
-                const data = doc.data();
+            let filteredContacts = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            
+            if (searchTerm) {
+                searchTerm = searchTerm.toLowerCase();
+                filteredContacts = filteredContacts.filter(c => 
+                    c.name.toLowerCase().includes(searchTerm) || 
+                    c.phone.includes(searchTerm) || 
+                    (c.email && c.email.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            document.getElementById('contact-count').innerText = filteredContacts.length;
+            container.innerHTML = '';
+            
+            if (filteredContacts.length === 0) {
+                container.innerHTML = `<div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-16 opacity-30 text-xs">אין אנשי קשר עדיין. נסה להוסיף או לסנכרן.</div>`;
+            }
+
+            filteredContacts.forEach(c => {
+                const avatar = c.avatarUrl ? 
+                    `<img src="${c.avatarUrl}" class="w-14 h-14 rounded-full border border-purple-500">` :
+                    `<div class="w-14 h-14 rounded-full avatar-placeholder flex items-center justify-center text-xl font-bold border border-white/10">${c.name.substring(0,2)}</div>`;
+
+                // פיצ'ר מטורף: Neural Tagging
+                const tags = [];
+                if (c.phone.startsWith('05')) tags.push('סלולרי ישראלי');
+                if (c.importedFromGoogle) tags.push('Google');
+                if (c.email && c.email.includes('gmail')) tags.push('GMail');
+
+                const tagsHTML = tags.map(t => `<span class="text-[9px] bg-cyan-900/40 text-cyan-300 px-2 py-1 rounded-full border border-cyan-400/20">${t}</span>`).join('');
+
                 container.innerHTML += `
-                    <div class="glass p-5 flex justify-between items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div>
-                            <div class="font-bold text-lg">${data.name}</div>
-                            <div class="text-cyan-400 text-sm font-mono">${data.phone}</div>
+                    <div class="glass-card neon-border-p p-5 flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div class="flex items-center gap-4">
+                            ${avatar}
+                            <div class="truncate">
+                                <div class="font-bold text-lg text-white truncate">${c.name} ${c.surname || ''}</div>
+                                <div class="text-xs text-gray-400 truncate">${c.phone}</div>
+                                <div class="text-[11px] text-gray-600 truncate">${c.email || ''}</div>
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            <a href="tel:${data.phone}" class="p-3 bg-green-500/20 text-green-400 rounded-xl hover:bg-green-500 hover:text-white transition">📞</a>
-                            <a href="sms:${data.phone}" class="p-3 bg-blue-500/20 text-blue-400 rounded-xl hover:bg-blue-500 hover:text-white transition">💬</a>
+                        <div class="flex flex-wrap gap-1">${tagsHTML}</div>
+                        <div class="flex gap-2 mt-2">
+                            <a href="tel:${c.phone}" class="flex-1 bg-green-500/20 text-green-400 p-3 rounded-lg text-center hover:bg-green-500 hover:text-white transition">📞 שיחה</a>
+                            <a href="sms:${c.phone}" class="flex-1 bg-blue-500/20 text-blue-400 p-3 rounded-lg text-center hover:bg-blue-500 hover:text-white transition">💬 SMS</a>
                         </div>
                     </div>
                 `;
             });
         }
 
+        // הוספת איש קשר מתקדמת עם תמונת פרופיל
+        async function submitNewContact() {
+            const uid = auth.currentUser.uid;
+            const name = document.getElementById('c-name').value;
+            const phone = document.getElementById('c-phone').value;
+            const avatarFile = document.getElementById('c-avatar').files[0];
+
+            if (!name || !phone) { alert("חובה למלא שם וטלפון."); return; }
+
+            alert("שומר... זה יכול לקחת כמה שניות.");
+
+            let avatarUrl = '';
+            if (avatarFile) {
+                const storageRef = storage.ref(`avatars/${uid}/${phone}_${avatarFile.name}`);
+                await storageRef.put(avatarFile);
+                avatarUrl = await storageRef.getDownloadURL();
+            }
+
+            await db.collection('contacts').add({
+                name,
+                surname: document.getElementById('c-surname').value,
+                phone,
+                email: document.getElementById('c-email').value,
+                avatarUrl,
+                ownerId: uid,
+                importedFromGoogle: false
+            });
+
+            closeAddModal();
+            loadContacts(uid);
+        }
+
+        // חיפוש חכם בזמן אמת
+        document.getElementById('search-contacts').addEventListener('input', (e) => {
+            loadContacts(auth.currentUser.uid, e.target.value);
+        });
+
+        // פאנל ניהול על למנהל
         async function loadAdminData() {
             const userSnap = await db.collection('users').get();
-            const contactSnap = await db.collection('contacts').get();
-            document.getElementById('total-users').innerText = userSnap.size;
-            document.getElementById('total-contacts').innerText = contactSnap.size;
-
-            const list = document.getElementById('users-list');
-            list.innerHTML = '';
+            document.getElementById('users-list').innerHTML = '';
             userSnap.forEach(uDoc => {
                 const u = uDoc.data();
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
-                        <span class="text-xs truncate max-w-[150px]">${u.email}</span>
-                        <div class="flex gap-2">
-                            <button onclick="downloadUserPDF('${u.uid}')" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded">PDF</button>
-                            <button class="text-[10px] bg-gray-700 px-2 py-1 rounded">חסום</button>
+                document.getElementById('users-list').innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-2 rounded-lg">
+                        <span class="truncate">${u.email}</span>
+                        <div class="flex gap-1">
+                            <button onclick="downloadPDF('${u.uid}')" class="text-[9px] bg-red-600/30 text-red-400 px-2 py-1 rounded">PDF</button>
+                            <button class="text-[9px] bg-gray-700 px-2 py-1 rounded">חסום</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function exportMyPDF() {
+        // יצירת PDF מטורף (למנהל בלבד)
+        async function downloadPDF(uid, email = 'משתמש') {
+            alert("מייצר PDF מטורף... זה ייקח זמן.");
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             doc.setFontSize(22);
-            doc.text("Neural Contacts - Personal Report", 20, 20);
-            doc.save("my_contacts.pdf");
+            doc.text(`Neural Contacts Report: ${email}`, 10, 20);
+            // כאן אפשר להוסיף את רשימת אנשי הקשר של המשתמש בעברית ל-PDF
+            doc.save(`contacts_report_${uid}.pdf`);
         }
+
+        // פתיחת מודלים
+        function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); }
+        function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
