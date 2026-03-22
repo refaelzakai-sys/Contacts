@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Contacts | The Future</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root { --neon: #8b5cf6; --cyan: #22d3ee; }
+        body { background: #020617; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 28px; }
+        .neon-text { text-shadow: 0 0 10px var(--neon); }
+        .btn-gradient { background: linear-gradient(135deg, var(--neon), var(--cyan)); transition: 0.3s; }
+        .btn-gradient:hover { transform: scale(1.02); filter: brightness(1.2); }
+        .admin-glow { border: 1px solid rgba(239, 68, 68, 0.5); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <header class="w-full max-w-lg flex flex-col items-center my-8">
+        <img src="https://i.postimg.cc/RWwHHG5g/logo.png" alt="Logo" class="w-20 h-20 rounded-full border-2 border-purple-500 mb-4 shadow-[0_0_30px_rgba(139,92,246,0.5)]">
+        <h1 class="text-4xl font-black italic tracking-tighter neon-text">NEURAL <span class="text-cyan-400">CONTACTS</span></h1>
+        <p class="text-gray-400 text-sm mt-2">Design by Rafael Digital</p>
+    </header>
+
+    <div id="login-screen" class="glass w-full max-w-md p-8 text-center">
+        <h2 class="text-2xl font-bold mb-6">ברוך הבא למערכת</h2>
+        <button onclick="loginGoogle()" class="w-full bg-white text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-200 transition mb-4">
+            <img src="https://www.google.com/favicon.ico" class="w-5"> התחבר עם Google
+        </button>
+        <p class="text-xs text-gray-500">בכניסה למערכת הינך מאשר את תנאי השימוש</p>
+    </div>
+
+    <div id="main-app" class="hidden w-full max-w-lg space-y-6">
+        
+        <div id="admin-panel" class="hidden glass admin-glow p-6">
+            <h3 class="text-red-500 font-bold mb-4 flex items-center gap-2 text-lg">⚙️ פאנל ניהול על - Rafael</h3>
+            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-4 text-center">
+                <div class="bg-black/40 p-3 rounded-xl border border-red-500/20">
+                    <div class="text-xs opacity-50">משתמשים</div>
+                    <div id="total-users" class="text-xl font-bold">...</div>
+                </div>
+                <div class="bg-black/40 p-3 rounded-xl border border-red-500/20">
+                    <div class="text-xs opacity-50">אנשי קשר</div>
+                    <div id="total-contacts" class="text-xl font-bold">...</div>
+                </div>
+            </div>
+            <div id="users-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
+        </div>
+
+        <div class="flex gap-4">
+            <button onclick="openAddModal()" class="flex-1 btn-gradient py-4 rounded-2xl font-bold shadow-lg shadow-purple-500/30">+ הוסף איש קשר</button>
+            <button onclick="exportMyPDF()" class="bg-slate-800 p-4 rounded-2xl border border-white/10">📄</button>
+        </div>
+
+        <div id="contacts-list" class="space-y-4">
+            </div>
+
+        <button onclick="auth.signOut()" class="w-full py-4 text-gray-500 text-sm opacity-50 hover:opacity-100">התנתק מהחשבון</button>
+    </div>
+
+    <script>
+        // הקונפיגורציה שסיפקת
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLLPPLwtaKyHLHFK6iIWB4aF37p2eeOpg",
+            authDomain: "contacts-71486.firebaseapp.com",
+            projectId: "contacts-71486",
+            storageBucket: "contacts-71486.firebasestorage.app",
+            messagingSenderId: "489787149614",
+            appId: "1:489787149614:web:26579f542447c1c16bfebf"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const adminEmail = "rplzky7@gmail.com";
+
+        auth.onAuthStateChanged(user => {
+            const loginScreen = document.getElementById('login-screen');
+            const mainApp = document.getElementById('main-app');
+            const adminPanel = document.getElementById('admin-panel');
+
+            if (user) {
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                
+                // בדיקת מנהל
+                if (user.email === adminEmail) {
+                    adminPanel.classList.remove('hidden');
+                    loadAdminData();
+                }
+                loadContacts(user.uid);
+            } else {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+            }
+        });
+
+        async function loginGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try { await auth.signInWithPopup(provider); } catch (e) { alert("שגיאה בהתחברות"); }
+        }
+
+        async function loadContacts(uid) {
+            const container = document.getElementById('contacts-list');
+            const snapshot = await db.collection('contacts').where('ownerId', '==', uid).get();
+            container.innerHTML = snapshot.empty ? '<p class="text-center opacity-30 py-10">אין אנשי קשר עדיין...</p>' : '';
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                container.innerHTML += `
+                    <div class="glass p-5 flex justify-between items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div>
+                            <div class="font-bold text-lg">${data.name}</div>
+                            <div class="text-cyan-400 text-sm font-mono">${data.phone}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="tel:${data.phone}" class="p-3 bg-green-500/20 text-green-400 rounded-xl hover:bg-green-500 hover:text-white transition">📞</a>
+                            <a href="sms:${data.phone}" class="p-3 bg-blue-500/20 text-blue-400 rounded-xl hover:bg-blue-500 hover:text-white transition">💬</a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function loadAdminData() {
+            const userSnap = await db.collection('users').get();
+            const contactSnap = await db.collection('contacts').get();
+            document.getElementById('total-users').innerText = userSnap.size;
+            document.getElementById('total-contacts').innerText = contactSnap.size;
+
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            userSnap.forEach(uDoc => {
+                const u = uDoc.data();
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
+                        <span class="text-xs truncate max-w-[150px]">${u.email}</span>
+                        <div class="flex gap-2">
+                            <button onclick="downloadUserPDF('${u.uid}')" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded">PDF</button>
+                            <button class="text-[10px] bg-gray-700 px-2 py-1 rounded">חסום</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function exportMyPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            doc.setFontSize(22);
+            doc.text("Neural Contacts - Personal Report", 20, 20);
+            doc.save("my_contacts.pdf");
+        }
+    </script>
+</body>
+</html>
